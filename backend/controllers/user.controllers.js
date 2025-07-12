@@ -27,7 +27,7 @@ const sendToken = (user, res, message, statusCode = 200) => {
         name: user.name,
         email: user.email,
         points: user.points,
-        isAdmin: user.isAdmin,
+        isAdmin: user.role === 'admin',
         avatar: user.avatar,
       },
     });
@@ -174,7 +174,7 @@ export const updateProfile = async (req, res) => {
               email: user.email,
               avatar: user.avatar,
               points: user.points,
-              isAdmin: user.isAdmin,
+              isAdmin: user.role === 'admin',
             },
           });
         }
@@ -197,7 +197,7 @@ export const updateProfile = async (req, res) => {
         email: user.email,
         avatar: user.avatar,
         points: user.points,
-        isAdmin: user.isAdmin,
+        isAdmin: user.role === 'admin',
       },
     });
   } catch (err) {

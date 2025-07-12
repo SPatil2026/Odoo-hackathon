@@ -1,24 +1,41 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'customer'
   });
+  const [error, setError] = useState('');
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement registration logic
+    setError('');
+    
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    const success = await register(formData.name, formData.email, formData.password, formData.role);
+    if (success) {
+      navigate('/');
+    } else {
+      setError('Registration failed');
+    }
   };
 
   return (
@@ -31,6 +48,7 @@ const Register = () => {
       <div className="w-full max-w-md flex gap-6">
         {/* Registration Form */}
         <form onSubmit={handleSubmit} className="flex-1">
+          {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
           <input
             type="text"
             name="name"
@@ -63,6 +81,15 @@ const Register = () => {
             onChange={handleChange}
             className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-accent mb-4"
           />
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-accent mb-4 bg-white"
+          >
+            <option value="customer">Customer</option>
+            <option value="admin">Admin</option>
+          </select>
           
           <button
             type="submit"
@@ -72,7 +99,7 @@ const Register = () => {
           </button>
 
           <Link
-            to="/"
+            to="/login"
             className="block text-center text-secondary-text text-sm mt-4"
           >
             Already have an account? Login

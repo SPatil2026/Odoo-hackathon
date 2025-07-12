@@ -48,12 +48,13 @@ export const addItem = async (req, res) => {
       condition,
       tags: tags ? tags.split(",").map((t) => t.trim()) : [],
       images: uploadedImages,
-      uploader: req.id, // from isAuthenticated middleware
+      uploader: req.id,
+      approved: true, // Auto-approve all items
     });
 
     res.status(201).json({
       success: true,
-      message: "Item submitted successfully and awaiting approval.",
+      message: "Item uploaded successfully.",
       item,
     });
   } catch (err) {
@@ -67,7 +68,7 @@ export const addItem = async (req, res) => {
  */
 export const getItems = async (req, res) => {
   try {
-    const items = await Item.find({ approved: true, status: "available" })
+    const items = await Item.find({ status: "available" })
       .populate("uploader", "name email role")
       .sort({ createdAt: -1 });
 
@@ -80,6 +81,27 @@ export const getItems = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error." });
   }
 };
+
+/**
+ * Get Pending Items (Admin only)
+ */
+export const getPendingItems = async (req, res) => {
+  try {
+    const items = await Item.find({ approved: false })
+      .populate("uploader", "name email role")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      items,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+};
+
+
 
 /**
  * Get Single Item
@@ -116,8 +138,22 @@ export const approveItem = async (req, res) => {
       });
     }
 
+    if (item.approved) {
+      return res.status(400).json({
+        success: false,
+        message: "Item is already approved.",
+      });
+    }
+
     item.approved = true;
     await item.save();
+
+    // Award points to uploader for successful item approval
+    const uploader = await User.findById(item.uploader);
+    if (uploader) {
+      uploader.points += 10; // Award 10 points for approved item
+      await uploader.save();
+    }
 
     res.json({
       success: true,
@@ -140,6 +176,13 @@ export const rejectItem = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Item not found.",
+      });
+    }
+
+    if (item.approved) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot reject an already approved item.",
       });
     }
 
@@ -191,7 +234,7 @@ export const deleteItem = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Item deleted successfully.",
+      message: "Item deleted successfully from database and Cloudinary.",
     });
   } catch (err) {
     console.error(err);

@@ -1,32 +1,40 @@
+import { useState, useEffect } from 'react';
 import { HiArrowLeft, HiShare, HiHeart } from 'react-icons/hi';
 import { useNavigate, useParams } from 'react-router-dom';
-
-const mockProduct = {
-  id: 1,
-  title: 'Vintage Denim Jacket',
-  description: 'A classic denim jacket in excellent condition. Perfect for casual wear and easily pairs with any outfit. Minimal wear and tear, all buttons intact.',
-  condition: 'Excellent',
-  size: 'M',
-  brand: 'Levi\'s',
-  listedBy: 'Jane Doe',
-  listingDate: '2025-07-10',
-  images: [],
-};
-
-const mockSuggestedItems = [
-  { id: 2, title: 'Blue Jeans', condition: 'Very Good' },
-  { id: 3, title: 'Denim Shirt', condition: 'Like New' },
-  { id: 4, title: 'Jean Shorts', condition: 'Good' },
-];
+import { Item } from '../types';
+import apiService from '../services/api';
 
 const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [item, setItem] = useState<Item | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Use id to fetch product details from API
-  console.log(`Fetching product details for id: ${id}`);
+  useEffect(() => {
+    const fetchItem = async () => {
+      if (!id) return;
+      try {
+        const response = await apiService.getItem(id);
+        if (response.success) {
+          setItem(response.item);
+        }
+      } catch (error) {
+        console.error('Failed to fetch item:', error);
+        setItem(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItem();
+  }, [id]);
 
-  // For now, we'll use mock data
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (!item) {
+    return <div className="min-h-screen flex items-center justify-center">Item not found</div>;
+  }
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
@@ -48,17 +56,21 @@ const ProductDetail = () => {
       <main className="pt-16">
         {/* Image Gallery */}
         <div className="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500 text-lg">
-          Product Images
+          {item.images[0] ? (
+            <img src={item.images[0].url} alt={item.title} className="w-full h-full object-cover" />
+          ) : (
+            'No Image Available'
+          )}
         </div>
 
         {/* Product Info */}
         <div className="p-4 bg-white">
           <h1 className="text-xl font-bold text-primary-text mb-2">
-            {mockProduct.title}
+            {item.title}
           </h1>
           
           <p className="text-primary-text text-base leading-relaxed mb-4">
-            {mockProduct.description}
+            {item.description}
           </p>
 
           {/* Swap/Request Button */}
@@ -75,15 +87,23 @@ const ProductDetail = () => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-secondary-text">Condition</span>
-              <span className="font-medium text-primary-text">{mockProduct.condition}</span>
+              <span className="font-medium text-primary-text">{item.condition}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-secondary-text">Size</span>
-              <span className="font-medium text-primary-text">{mockProduct.size}</span>
+              <span className="font-medium text-primary-text">{item.size}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-secondary-text">Brand</span>
-              <span className="font-medium text-primary-text">{mockProduct.brand}</span>
+              <span className="text-secondary-text">Category</span>
+              <span className="font-medium text-primary-text">{item.category}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-secondary-text">Type</span>
+              <span className="font-medium text-primary-text">{item.type}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-secondary-text">Status</span>
+              <span className="font-medium text-primary-text capitalize">{item.status}</span>
             </div>
           </div>
         </div>
@@ -95,42 +115,31 @@ const ProductDetail = () => {
           </h2>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-secondary-text">Listed By</span>
-              <span className="font-medium text-primary-text">{mockProduct.listedBy}</span>
+              <span className="text-secondary-text">Listed On</span>
+              <span className="font-medium text-primary-text">{new Date(item.createdAt).toLocaleDateString()}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-secondary-text">Listed On</span>
-              <span className="font-medium text-primary-text">{mockProduct.listingDate}</span>
+              <span className="text-secondary-text">Approved</span>
+              <span className="font-medium text-primary-text">{item.approved ? 'Yes' : 'Pending'}</span>
             </div>
           </div>
         </div>
 
-        {/* Suggested Items */}
-        <div className="mt-4 p-4">
-          <h2 className="font-semibold text-lg text-primary-text mb-3">
-            Similar Items
-          </h2>
-          <div className="flex overflow-x-auto pb-4 gap-4">
-            {mockSuggestedItems.map((item) => (
-              <div
-                key={item.id}
-                className="flex-shrink-0 w-32 bg-white rounded-lg shadow-sm overflow-hidden"
-              >
-                <div className="w-full h-24 bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
-                  Image
-                </div>
-                <div className="p-2">
-                  <p className="text-sm font-medium text-primary-text line-clamp-1">
-                    {item.title}
-                  </p>
-                  <p className="text-xs text-secondary-text">
-                    {item.condition}
-                  </p>
-                </div>
-              </div>
-            ))}
+        {/* Tags */}
+        {item.tags.length > 0 && (
+          <div className="mt-4 p-4 bg-white">
+            <h2 className="font-semibold text-lg text-primary-text mb-3">
+              Tags
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {item.tags.map((tag, index) => (
+                <span key={index} className="px-2 py-1 bg-gray-100 text-sm text-gray-700 rounded">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );

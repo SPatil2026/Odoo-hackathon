@@ -1,17 +1,23 @@
 import { createBrowserRouter } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Home from './pages/Home';
+import CustomerHome from './pages/CustomerHome';
+import AdminHome from './pages/AdminHome';
 import Search from './pages/Search';
 import Browse from './pages/Browse';
 import Profile from './pages/Profile';
 import ProductDetail from './pages/ProductDetail';
 import AddItem from './pages/AddItem';
-import Admin from './pages/Admin';
+import ProtectedRoute from './components/ProtectedRoute';
+import RoleBasedRoute from './components/RoleBasedRoute';
 
 export const router = createBrowserRouter([
   {
     path: '/',
+    element: <ProtectedRoute><RoleBasedRoute /></ProtectedRoute>,
+  },
+  {
+    path: '/login',
     element: <Login />,
   },
   {
@@ -19,31 +25,24 @@ export const router = createBrowserRouter([
     element: <Register />,
   },
   {
-    path: '/home',
-    element: <Home />,
-  },
-  {
     path: '/search',
-    element: <Search />,
+    element: <ProtectedRoute><Search /></ProtectedRoute>,
   },
   {
     path: '/browse',
-    element: <Browse />,
+    element: <ProtectedRoute><Browse /></ProtectedRoute>,
   },
   {
     path: '/profile',
-    element: <Profile />,
+    element: <ProtectedRoute><Profile /></ProtectedRoute>,
   },
   {
     path: '/product/:id',
-    element: <ProductDetail />,
+    element: <ProtectedRoute><ProductDetail /></ProtectedRoute>,
   },
   {
     path: '/add-item',
-    element: <AddItem />,
+    element: <ProtectedRoute><AddItem /></ProtectedRoute>,
   },
-  {
-    path: '/admin',
-    element: <Admin />,
-  },
+
 ]);
