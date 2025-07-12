@@ -4,9 +4,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
 import userRoute from "./routes/user.routes.js"
-// import companyRoute from "./routes/company.route.js";
-// import jobRoute from "./routes/job.route.js";
-// import applicationRoute from "./routes/application.route.js";
+import itemRoute from "./routes/item.routes.js";
+import redemptionRoutes from "./routes/redemption.routes.js";
+import swapRoutes from "./routes/swap.routes.js";
 dotenv.config({ path: "./.env" });
 
 const app = express();
@@ -27,7 +27,9 @@ const PORT = process.env.PORT || 3000;
 
 //apis
 app.use("/user",userRoute);
-
+app.use("/items", itemRoute);
+app.use("/api/redemptions", redemptionRoutes);
+app.use("/api/swaps", swapRoutes);
 
 
 app.listen(PORT, () => {
