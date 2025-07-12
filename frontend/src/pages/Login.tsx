@@ -21,52 +21,76 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
-      {/* Logo Placeholder */}
-      <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mb-8">
-        <span className="text-gray-500 text-sm">ReWear Logo</span>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary-50 to-primary-100">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-gradient-to-r from-primary-500 to-primary-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-soft">
+            <span className="text-white text-2xl font-bold">R</span>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to ReWear</h1>
+          <p className="text-gray-600">Sustainable fashion marketplace</p>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-soft p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm">
+                {error}
+              </div>
+            )}
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                required
+              />
+            </div>
+            
+            <button
+              type="submit"
+              className="w-full py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all duration-200 shadow-soft"
+            >
+              Sign In
+            </button>
+          </form>
+          
+          <div className="mt-6 text-center">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-primary-600 hover:text-primary-700 transition-colors"
+            >
+              Forgot your password?
+            </Link>
+          </div>
+          
+          <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+            <p className="text-gray-600 text-sm mb-4">Don't have an account?</p>
+            <Link
+              to="/register"
+              className="w-full block py-3 border-2 border-primary-500 text-primary-600 font-semibold rounded-2xl hover:bg-primary-50 transition-all duration-200"
+            >
+              Create Account
+            </Link>
+          </div>
+        </div>
       </div>
-
-      {/* Login Form */}
-      <form onSubmit={handleSubmit} className="w-full max-w-xs">
-        {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-accent mb-4"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-accent mb-4"
-        />
-        
-        <button
-          type="submit"
-          className="w-full p-3 rounded-lg bg-primary-accent text-white font-bold hover:bg-green-600 transition-colors duration-200"
-        >
-          Login
-        </button>
-
-        <Link
-          to="/forgot-password"
-          className="block text-center text-secondary-text text-sm mt-2"
-        >
-          Forgot Password?
-        </Link>
-
-        <Link
-          to="/register"
-          className="block w-full p-3 rounded-lg border border-primary-accent text-primary-accent font-bold mt-6 text-center hover:bg-green-50 transition-colors duration-200"
-        >
-          Create Account
-        </Link>
-      </form>
     </div>
   );
 };
